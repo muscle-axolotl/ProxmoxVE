@@ -55,7 +55,7 @@ msg_info "Installing Dependencies"
 $STD apt-get install -y \
   wget git git-lfs \
   python3 python3-venv \
-  libgl1 libglib2.0-0c \
+  libgl1 libglib2.0-0 \
   libgoogle-perftools-dev
 git lfs install
 msg_ok "Installed Dependencies"
