@@ -59,15 +59,15 @@ $STD apt-get install -y \
 git lfs install
 msg_ok "Installed Dependencies"
 
+
+msg_info "Installing NVIDIA Drivers"
 NVIDIA_DRIVER_VERSION="580.76.05"
 # Install nvidia drivers.
 if wget -O "NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run" "https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run"; then
-  chown sdwebui:sdwebui "NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run"
   msg_ok "Nvidia driver downloaded"
-  msg_info "Installing NVIDIA driver"
   chmod +x "NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run"
   # Run the installer in silent mode, accepting the license.
-  if sudo -u sdwebui bash -c "./NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run --silent --accept-license --no-kernel-modules --run-nvidia-xconfig --disable-nouveau"; then
+  if bash -c "./NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run --silent --accept-license --no-kernel-modules --run-nvidia-xconfig --disable-nouveau"; then
       msg_ok "NVIDIA driver installed successfully"
       rm -f "NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run"
   else
@@ -98,11 +98,6 @@ else
   msg_ok "Repository already present at $INSTALL_DIR"
 fi
 
-# ---- Service user ----
-if ! id -u sdwebui >/dev/null 2>&1; then
-  useradd --system --home "$INSTALL_DIR" --shell /usr/sbin/nologin sdwebui
-fi
-chown -R sdwebui:sdwebui "$INSTALL_DIR"
 
 # ---- Torch / bootstrap ----
 # Default to CPU torch (safe for LXC). If GPU is passed through, user can remove this later.
@@ -112,7 +107,7 @@ export PIP_ALLOW_UNVERIFIED=true
 
 msg_info "Bootstrapping webui (first run to create venv and install Torch)"
 cd "$INSTALL_DIR" || exit
-sudo -u sdwebui bash -lc 'cd '"$INSTALL_DIR"' && ./webui.sh --exit --skip-torch-cuda-test'
+bash -lc 'cd '"$INSTALL_DIR"' && ./webui.sh --exit --skip-torch-cuda-test'
 msg_ok "Bootstrap Complete"
 
 # ---- Optional: xformers (GPU-only) ----
