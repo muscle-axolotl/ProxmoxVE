@@ -1350,7 +1350,18 @@ EOF'
   fi
   msg_ok "Customized LXC Container"
 
-  lxc-attach -n "$CTID" -- bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/install/${var_install}.sh)"
+
+  #lxc-attach -n "$CTID" -- bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/install/${var_install}.sh)"
+  lxc-attach -n "$CTID" -- bash -c "$(curl -fsSL https://raw.githubusercontent.com/muscle-axolotl/ProxmoxVE/main/install/${var_install}.sh)"
+
+  if curl -fsSL "https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/install/${var_install}.sh" -o /tmp/${var_install}.sh; then
+    lxc-attach -n "$CTID" -- bash /tmp/${var_install}.sh
+  else
+    echo "[WARN] curl failed, using custom ${var_install}.sh"
+    if curl -fsSL "https://raw.githubusercontent.com/muscle-axolotl/ProxmoxVE/refs/heads/main/install/${var_install}.sh" -o /tmp/${var_install}.sh; then
+      lxc-attach -n "$CTID" -- bash /tmp/${var_install}.sh
+    fi
+  fi
 }
 
 # This function sets the description of the container.
