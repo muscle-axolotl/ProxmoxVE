@@ -100,6 +100,9 @@ export PIP_ALLOW_UNVERIFIED=true
 
 msg_info "Bootstrapping webui (first run to create venv and install Torch)"
 cd "$INSTALL_DIR" || exit
+msg_info "Update webiu-user.sh to enable running as root user"
+echo 'can_run_as_root=1' >> ./webui-user.sh
+msg_info "Running Bootstrap (this may take a while)"
 bash -lc 'cd '"$INSTALL_DIR"' && ./webui.sh --exit --skip-torch-cuda-test'
 msg_ok "Bootstrap Complete"
 
