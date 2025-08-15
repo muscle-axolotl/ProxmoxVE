@@ -75,13 +75,6 @@ if wget -O "NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run" "https://us.downlo
       rm -f "NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run"
       exit 1
   fi
-  # Check if the driver was installed correctly
-  if nvidia-smi >/dev/null 2>&1; then
-    msg_ok "NVIDIA driver is installed and working"
-  else
-    msg_error "NVIDIA driver installation failed. Please check the logs."
-    exit 1
-  fi
 else
   msg_warn "Failed to download driver license. Skipping."
   rm -f "NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run"
