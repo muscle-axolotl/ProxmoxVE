@@ -100,6 +100,9 @@ export PIP_ALLOW_UNVERIFIED=true
 
 msg_info "Bootstrapping webui (first run to create venv and install Torch)"
 cd "$INSTALL_DIR" || exit
+msg_info "Update webiu-user.sh to enable running as root user"
+echo 'can_run_as_root=1' >> ./webui-user.sh
+msg_info "Running Bootstrap (this may take a while)"
 bash -lc 'cd '"$INSTALL_DIR"' && ./webui.sh --exit --skip-torch-cuda-test'
 msg_ok "Bootstrap Complete"
 
@@ -108,7 +111,7 @@ if [[ "$INSTALL_XFORMERS" == "y" ]]; then
   if command -v nvidia-smi >/dev/null 2>&1; then
     msg_info "Installing xformers (GPU detected)"
     # Enter venv and install matching xformers. The webui venv is under ./venv by default.
-    sudo -u sdwebui bash -lc 'source /opt/stable-diffusion-webui/venv/bin/activate && pip install --upgrade pip && pip install xformers'
+    bash -lc 'source /opt/stable-diffusion-webui/venv/bin/activate && pip install --upgrade pip && pip install xformers'
     msg_ok "xformers installed"
   else
     msg_warn "No NVIDIA GPU detected inside the container. Skipping xformers."
@@ -130,7 +133,6 @@ if [[ "$INSTALL_SAMPLE_CKPT" == "y" ]]; then
       URL="https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors"
       # Use Authorization header for gated model
       if wget --header="Authorization: Bearer ${HF_TOKEN}" -O "$FILE" "$URL"; then
-        chown sdwebui:sdwebui "$FILE"
         msg_ok "Sample checkpoint downloaded"
       else
         msg_warn "Failed to download checkpoint (token invalid or license not accepted). Skipping."
