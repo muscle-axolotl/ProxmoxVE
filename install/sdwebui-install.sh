@@ -55,7 +55,8 @@ msg_info "Installing Dependencies"
 $STD apt-get install -y \
   wget git git-lfs \
   python3 python3-venv \
-  libgl1 libglib2.0-0
+  libgl1 libglib2.0-0c \
+  libgoogle-perftools-dev
 git lfs install
 msg_ok "Installed Dependencies"
 
@@ -100,23 +101,9 @@ export PIP_ALLOW_UNVERIFIED=true
 
 msg_info "Bootstrapping webui (first run to create venv and install Torch)"
 cd "$INSTALL_DIR" || exit
-msg_info "Update webiu-user.sh to enable running as root user"
-echo 'can_run_as_root=1' >> ./webui-user.sh
-msg_info "Running Bootstrap (this may take a while)"
-bash -lc 'cd '"$INSTALL_DIR"' && ./webui.sh --exit --skip-torch-cuda-test'
+bash -lc 'cd '"$INSTALL_DIR"' && ./webui.sh -f --skip-torch-cuda-test --xformers --exit'
 msg_ok "Bootstrap Complete"
 
-# ---- Optional: xformers (GPU-only) ----
-if [[ "$INSTALL_XFORMERS" == "y" ]]; then
-  if command -v nvidia-smi >/dev/null 2>&1; then
-    msg_info "Installing xformers (GPU detected)"
-    # Enter venv and install matching xformers. The webui venv is under ./venv by default.
-    bash -lc 'source /opt/stable-diffusion-webui/venv/bin/activate && pip install --upgrade pip && pip install xformers'
-    msg_ok "xformers installed"
-  else
-    msg_warn "No NVIDIA GPU detected inside the container. Skipping xformers."
-  fi
-fi
 
 # ---- Optional: Sample checkpoint download ----
 MODELS_DIR="$INSTALL_DIR/models/Stable-diffusion"
@@ -157,7 +144,7 @@ User=sdwebui
 Group=sdwebui
 WorkingDirectory=/opt/stable-diffusion-webui
 Environment=TORCH_COMMAND=pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-ExecStart=/bin/bash -lc '/opt/stable-diffusion-webui/webui.sh --listen 0.0.0.0 --port 7860 --skip-torch-cuda-test --api'
+ExecStart=/bin/bash -lc '/opt/stable-diffusion-webui/webui.sh --listen 0.0.0.0 --port 7860 --skip-torch-cuda-test --api --enable-insecure-extension-access '
 Restart=always
 RestartSec=5
 
